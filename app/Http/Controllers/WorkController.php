@@ -14,6 +14,10 @@ class WorkController extends Controller
 
     }
 
+    public function working(){
+        echo "happy";
+    }
+
     public function queue_user_sms($user_phone, $content_text)
     {
         if (DB::table('table_tbl_sms_queue')->insert(['phone_number' => $user_phone, 'text_content' => $content_text])) {

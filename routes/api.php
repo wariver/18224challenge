@@ -20,3 +20,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('q_sms/{phone}/{text}', 'WorkController@queue_user_sms');
 Route::get('create_slags', 'WorkController@create_slags_for_numbers');
 Route::get('participate/{slag}', 'WorkController@reconcile_slag_click');
+Route::get('works', 'WorkController@working');
