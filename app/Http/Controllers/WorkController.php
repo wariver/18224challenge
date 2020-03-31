@@ -39,7 +39,7 @@ class WorkController extends Controller
 
         foreach ($contacts as $contact) {
             $slag = $this->generateRandomString();
-            $message = URL::to('/') . "/" . $slag;
+            $message = URL::to('/api/participate') . "/" . $slag;
             DB::table('table_tbl_user_links')->insert(['phone' => $contact->phone_number, 'slag' => $slag]);
             $this->queue_user_sms($contact->phone_number, $message);
         }
