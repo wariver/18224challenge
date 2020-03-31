@@ -14,7 +14,8 @@ class WorkController extends Controller
 
     }
 
-    public function working(){
+    public function working()
+    {
         echo "happy";
     }
 
@@ -28,7 +29,7 @@ class WorkController extends Controller
 
     public function reconcile_slag_click($slag)
     {
-        DB::table('table_tbl_user_links')->where('slag', $slag)->update(['clicked' => 1]);
+        DB::table('table_tbl_user_links')->where('slag', $slag)->update(['clicked' => DB::raw('clicked+1')]);
         return response()->json(['message' => 'Thank you for accepting to be part of this challenge.']);
     }
 
@@ -39,7 +40,7 @@ class WorkController extends Controller
 
         foreach ($contacts as $contact) {
             $slag = $this->generateRandomString();
-            $message = URL::to('/') . "/" . $slag;
+            $message = URL::to('/api') . "/" . $slag;
             DB::table('table_tbl_user_links')->insert(['phone' => $contact->phone_number, 'slag' => $slag]);
             $this->queue_user_sms($contact->phone_number, $message);
         }
@@ -58,5 +59,44 @@ class WorkController extends Controller
             }
         }
         return $randomString;
+    }
+
+    public function send_to_next()
+    {
+        $sms_q = DB::table('table_tbl_sms_queue')->first();
+        $id = $sms_q->id;
+        $msg = $sms_q->text_content;
+        $phone = $sms_q->phone_number;
+
+        $firebase_token = DB::table('tbl_fb_instance')->where('id', 1)->first();
+        if (!$firebase_token) {
+            return response()->json(['status' => 500, 'error' => 'There was no android device registered.']);
+        }
+
+        $fields = [
+            'to' => (string)$firebase_token->fb_instance_id,
+            'data' => [
+                'title' => (string)$phone,
+                'body' => (string)$msg
+            ]
+        ];
+        $data = json_encode($fields);
+        $header = [
+            'Authorization:key=AAAA0aRdlwE:APA91bFC2rwdQEaeav_nybFTY5C7NyQDQqFvj7tpgZeu2AI4_RgV-2J_UmwKfAra9ZuOB0UEDT1jmd4d335L07xbbivAFmhB2XWfLZRrrLKj-YY0G91KdMO1OypZEZt9tbpKR4XNaLvA',
+            'Content-Type:application/json'
+        ];
+        $url = 'https://fcm.googleapis.com/fcm/send';
+//        $client->post($url, ['body' => json_encode($fields)]);
+        $cURLConnection = curl_init();
+
+        curl_setopt($cURLConnection, CURLOPT_POST, true);
+        curl_setopt($cURLConnection, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURLConnection, CURLOPT_POSTFIELDS, $data);
+//        dd($url, $data);
+        $result = curl_exec($cURLConnection);
+        var_dump($result);
+        DB::table('table_tbl_sms_queue')->where('id', $id)->delete();
     }
 }
