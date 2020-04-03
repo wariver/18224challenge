@@ -30,7 +30,7 @@ class WorkController extends Controller
     public function reconcile_slag_click($slag)
     {
         DB::table('table_tbl_user_links')->where('slag', $slag)->update(['clicked' => DB::raw('clicked+1')]);
-        return response()->json(['message' => 'Thank you for accepting to be part of this challenge.']);
+        return view('welcome');
     }
 
     public function create_slags_for_numbers()
