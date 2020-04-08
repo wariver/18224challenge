@@ -84,7 +84,7 @@
                     Thank you
                 </div>
                 <h2 class="text-primary"> For accepting to be part of 18224 TUVUTE CHALLENGE</h2>
-                <h1 class="text-primary"> DAY 2</h1>
+                <h1 class="text-primary"> DAY 3</h1>
             </div>
         </div>
     </body>
